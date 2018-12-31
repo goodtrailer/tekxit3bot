@@ -1,17 +1,19 @@
 <h1>tekxit3bot</h1>
-
-points
-	()
-	add <player> <value>
-
-mods
-	()
-	add <name>
-
-buymod	<name> <player> <points>
-
-limits
-	effects
-		()
-		<name>
-	other
+<h3>Complete</h3>
+points: <br />
+	() <br />
+	add [player] [value]<br />
+<br />
+mods:<br />
+	()<br />
+	add [name]<br />
+<br />
+<h3>Work In Progress</h3>
+limits:<br />
+	effects<br />
+		()<br />
+		[name]<br />
+	other<br />
+	
+<h3>Status unknown</h3>
+buymod:	[name] [player] [points]
