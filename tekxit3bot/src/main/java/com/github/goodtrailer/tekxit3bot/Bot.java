@@ -1,5 +1,6 @@
 package com.github.goodtrailer.tekxit3bot;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -16,6 +17,7 @@ public class Bot
 	MessageCreateEvent currEvent;
 	String currMsg;
 	String[] currMsgArr;
+	String home;
 	
 	final String BOT_PREFIX = "/";
 	
@@ -31,8 +33,10 @@ public class Bot
     
     public Bot (String token)
     {
+    	home = System.getProperty("user.home");
+    	new File(home + "/.tekxit3bot").mkdir();
     	try {
-    		FileInputStream fileIn = new FileInputStream("/temp/db.ser");
+    		FileInputStream fileIn = new FileInputStream(home + "/.tekxit3bot/db.ser");
     		ObjectInputStream in = new ObjectInputStream(fileIn);
     		db = (Database) in.readObject();
     		in.close();
@@ -161,11 +165,11 @@ public class Bot
     
     void SerializeDB() throws IOException
     {
-    	FileOutputStream fileOut = new FileOutputStream("/temp/db.ser");
+    	FileOutputStream fileOut = new FileOutputStream(home + "/.tekxit3bot/db.ser");
     	ObjectOutputStream out = new ObjectOutputStream(fileOut);
     	out.writeObject(db);
     	out.close();
     	fileOut.close();
-    	System.out.println("Serialized data is saved in /temp/db.ser");
+    	System.out.println("Serialized data is saved in " + home + "/.tekxit3bot/db.ser");
     }
 }
