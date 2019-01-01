@@ -6,6 +6,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.stream.Stream;
 
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
@@ -24,7 +27,7 @@ public class Bot
 	
     public static void main( String[] args )
     {
-    	String token = "NTI3Njg4MzI1NDI4MDE5MjMw.Dwmycg.JI6cIwfQXZ0hc7eiPJ5fUR-7Nok";
+    	String token = null;
         new Bot(token);
         try {
         System.in.read();
@@ -35,6 +38,12 @@ public class Bot
     {
     	home = System.getProperty("user.home");
     	new File(home + "/.tekxit3bot").mkdir();
+    	
+    	try (Stream<String> stream = Files.lines(Paths.get(home + "/.tekxit3bot/token.txt"))) {
+    		token = stream.iterator().next();
+    		System.out.println(token);
+    	} catch (IOException e) { }
+    	
     	try {
     		FileInputStream fileIn = new FileInputStream(home + "/.tekxit3bot/db.ser");
     		ObjectInputStream in = new ObjectInputStream(fileIn);
@@ -69,10 +78,7 @@ public class Bot
     		}
     		
     	});
-
-    	System.out.println("inviteurl:\n" + api.createBotInvite());
     }
-    
     
     void Test()
     {
@@ -109,7 +115,9 @@ public class Bot
     	}
     	else if (currMsgArr.length == 4)
     	{
-    		System.out.println("should be adding...");
+    		System.out.println("stry (Stream<String> stream = Files.lines(Paths.get(fileName))) {\n" + 
+    				"        stream.forEach(System.out::println);\n" + 
+    				"}hould be adding...");
     		if (currMsgArr[1].equalsIgnoreCase("add"))
 	    		try
 	    		{
