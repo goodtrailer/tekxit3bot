@@ -29,9 +29,6 @@ public class Bot
     {
     	String token = null;
         new Bot(token);
-        try {
-        System.in.read();
-        } catch (Exception e) {e.printStackTrace();}
     }
     
     public Bot (String token)
@@ -55,29 +52,33 @@ public class Bot
     		db = new Database();
     		System.out.println("Didn't find serialized database");
     	}
-    	
-    	DiscordApi api = new DiscordApiBuilder().setToken(token).login().join();
-    	api.addMessageCreateListener(event -> {
-    		currEvent = event;
-    		currMsg = event.getMessageContent();
-    		if (currMsg.startsWith(BOT_PREFIX))
-    		{
-        		currMsgArr = currMsg.substring(1).split(" ");
-        		System.out.println(currMsgArr[0]);
-        		switch (currMsgArr[0]) {
-        		case "test":
-        			Test();
-        			break;
-        		case "points":
-        			Points();
-        			break;
-        		case "mods":
-        			ModList();
-        			break;
-        		}
-    		}
-    		
-    	});
+	
+		DiscordApi api = new DiscordApiBuilder().setToken(token).login().join();
+		api.addMessageCreateListener(event -> {
+			currEvent = event;
+			currMsg = event.getMessageContent();
+			if (currMsg.startsWith(BOT_PREFIX))
+			{
+				currMsgArr = currMsg.substring(1).split(" ");
+				System.out.println(currMsgArr[0]);
+				switch (currMsgArr[0]) {
+				case "test":
+					Test();
+					break;
+				case "points":
+					Points();
+					break;
+				case "mods":
+					ModList();
+					break;
+				case "disconnect":
+					api.disconnect();
+					break;
+				}
+			}
+			
+		});
+		
     }
     
     void Test()
@@ -109,21 +110,21 @@ public class Bot
 	    				{
 	    					db.mods.remove(mod);
 	    					SerializeDB();
+							msgToSend = "Removed the **" + currMsgArr[2] + "** mod.";
 	    					break;
 	    				}
 	    		} catch (IOException e) { e.printStackTrace(); }
     	}
     	else if (currMsgArr.length == 4)
     	{
-    		System.out.println("stry (Stream<String> stream = Files.lines(Paths.get(fileName))) {\n" + 
-    				"        stream.forEach(System.out::println);\n" + 
-    				"}hould be adding...");
+    		System.out.println("should be adding...");
     		if (currMsgArr[1].equalsIgnoreCase("add"))
 	    		try
 	    		{
 	    			Integer.parseInt(currMsgArr[3]);
 	    			db.mods.add(new String[] { currMsgArr[2], currMsgArr[3] });
 	    			SerializeDB();
+					msgToSend = "Added the **" + currMsgArr[2] + "** mod for **" + currMsgArr[3] + "mp**!";
 	    		}
 	    		catch (IOException e)
 	    		{
@@ -131,7 +132,7 @@ public class Bot
 	    		}
 	    		catch (NumberFormatException e)
 	    		{
-	    			msgToSend = "put an integer for the points part";
+	    			msgToSend = "Put an integer for the points parameter.";
 	    		}
     	}
     	currEvent.getChannel().sendMessage(msgToSend);
@@ -141,33 +142,65 @@ public class Bot
     {
     	System.out.println("Points()");
     	String msgToSend = "";
+		
+		boolean foundPlayer = false;
+		
     	if (currMsgArr.length == 1)
-    	{
+		{
     		for (int i = 0; i < db.points.size(); i++)
-    		{
-    			msgToSend += "**· " + db.points.get(i)[0] + ":**        " + db.points.get(i)[1] + "\n";
-    		}
-    	}
-    	else if (currMsgArr.length == 4 && (currMsgArr[1].equalsIgnoreCase("add") || currMsgArr[1].equalsIgnoreCase("remove")))
+    			msgToSend += "**· " + db.points.get(i)[0] + ":**        " + db.points.get(i)[1] + "mp\n";
+		}
+		
+		else if (currMsgArr.length == 3 && currMsgArr[1].equalsIgnoreCase("remove"))
+		{
+			for (int i = 0; i < db.points.size(); i++)
+				if (db.points.get(i)[0].equalsIgnoreCase(currMsgArr[2]))
+					db.points.remove(i);
+		}
+    	else if (currMsgArr.length == 4 && (currMsgArr[1].equalsIgnoreCase("add") || currMsgArr[1].equalsIgnoreCase("subtract")))
+		{
     		for (int i = 0; i < db.points.size(); i++)
     			if (db.points.get(i)[0].equalsIgnoreCase(currMsgArr[2]))
     			{
     				if (currMsgArr[1].equalsIgnoreCase("add"))
-    					db.points.get(i)[1] = Integer.toString(Integer.parseInt(db.points.get(i)[1])
-    										+ Integer.parseInt(currMsgArr[3]));
-    				else if (currMsgArr[1].equalsIgnoreCase("remove"))
-    					db.points.get(i)[1] = Integer.toString(Integer.parseInt(db.points.get(i)[1])
-								- Integer.parseInt(currMsgArr[3]));
-    				msgToSend = "**"
+    					db.points.get(i)[1] = Integer.toString(Integer.parseInt(db.points.get(i)[1]) + Integer.parseInt(currMsgArr[3]));
+    				else if (currMsgArr[1].equalsIgnoreCase("subtract"))
+    					db.points.get(i)[1] = Integer.toString(Integer.parseInt(db.points.get(i)[1]) - Integer.parseInt(currMsgArr[3]));
+    				
+					
+					msgToSend = "**"
     						+ currMsgArr[2]
     						+ "** currently has **"
     						+ Integer.parseInt(db.points.get(i)[1])
     						+ "** points";
+					
+					foundPlayer = true;
+					
     				try {
     					SerializeDB();
     				} catch (IOException e) { e.printStackTrace(); }
     				break;
     			}
+			
+			if (!foundPlayer)
+			{
+				if (currMsgArr[1].equalsIgnoreCase("add"))
+					db.points.add(new String[] { currMsgArr[2], currMsgArr[3] });
+    			else if (currMsgArr[1].equalsIgnoreCase("subtract"))
+					db.points.add(new String[] { currMsgArr[2], "" + (-1 * Integer.parseInt(currMsgArr[3])) });
+				
+				
+				msgToSend = "**"
+    						+ currMsgArr[2]
+    						+ "** currently has **"
+    						+ db.points.get(db.points.size() - 1)[1]
+    						+ "** points";
+				try {
+    				SerializeDB();
+    			} catch (IOException e) { e.printStackTrace(); }
+			}
+		}
+			
     	currEvent.getChannel().sendMessage(":\n" + msgToSend);
     }
     
