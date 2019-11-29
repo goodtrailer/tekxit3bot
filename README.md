@@ -3,10 +3,13 @@
 points: <br />
 	() <br />
 	add [player] [value]<br />
+	subtract [player] [value]<br />
+	remove<br />
 <br />
 mods:<br />
 	()<br />
 	add [name]<br />
+	remove [name]<br />
 <br />
 <h3>Work In Progress</h3>
 limits:<br />
