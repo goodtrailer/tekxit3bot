@@ -13,10 +13,6 @@ public class Database implements Serializable {
 	public Database()
 	{
 		points = new ArrayList<String[]>();				// { name, points }
-		points.add(new String[] { "Brandon", "0" });
-		points.add(new String[] { "Austin", "0" });
-		points.add(new String[] { "Alden", "0" });
-		points.add(new String[] { "Kyle", "0" });
 		mods = new ArrayList<String[]>();				// { name, points }
 		effects = new ArrayList<String[]>();			// { name, limit }
 		other = new ArrayList<String>();				// name
